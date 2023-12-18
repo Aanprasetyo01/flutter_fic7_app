@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_fic7_app/bloc/register/register_bloc.dart';
+import 'package:flutter_fic7_app/data/models/request/register_request_model.dart';
 
 import '../../../utils/color_resources.dart';
 import '../../../utils/custom_themes.dart';
@@ -37,6 +40,12 @@ class SignUpWidgetState extends State<SignUpWidget> {
   addUser() async {
     if (_formKey!.currentState!.validate()) {
       _formKey!.currentState!.save();
+      final model = RegisterRequestModel(
+        email: _emailController.text,
+        password: _passwordController.text,
+        name: _firstNameController.text,
+      );
+      context.read<RegisterBloc>().add(RegisterEvent.register(model));
       isEmailVerified = true;
     } else {
       isEmailVerified = false;
@@ -126,7 +135,34 @@ class SignUpWidgetState extends State<SignUpWidget> {
               right: Dimensions.marginSizeLarge,
               bottom: Dimensions.marginSizeLarge,
               top: Dimensions.marginSizeLarge),
-          child: CustomButton(onTap: addUser, buttonText: 'Sign Up'),
+          child: BlocListener<RegisterBloc, RegisterState>(
+            listener: (context, state) {
+              state.maybeWhen(
+              orElse: (){},
+              error: (message) {
+                return ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('massage')),
+                );
+              },
+              loaded: (data){
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context){
+                  return DashboardPage();
+                }), (route) => false);
+              },
+              );
+            },
+            child: BlocBuilder<RegisterBloc, RegisterState>(
+              builder: (context, state) {
+                return state.maybeWhen(
+                  orElse: () {
+                    return CustomButton(onTap: addUser, buttonText: 'Sign Up');
+                  },
+                  loading: () => Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              },
+            ),
+          ),
         ),
         Center(
             child: Row(
@@ -135,10 +171,10 @@ class SignUpWidgetState extends State<SignUpWidget> {
           children: [
             TextButton(
                 onPressed: () {
-                    Navigator.pushAndRemoveUntil(context,
-                    MaterialPageRoute(builder: (context){
-                      return const DashboardPage();
-                    }), (route) => false);
+                  Navigator.pushAndRemoveUntil(context,
+                      MaterialPageRoute(builder: (context) {
+                    return const DashboardPage();
+                  }), (route) => false);
                 },
                 child: Text('Skip for Now',
                     style: titilliumRegular.copyWith(
