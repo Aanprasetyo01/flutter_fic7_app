@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 import '../../utils/color_resources.dart';
 import '../../utils/custom_themes.dart';
 import '../../utils/dimensions.dart';
@@ -108,12 +107,12 @@ class _AuthPageState extends State<AuthPage> {
                     itemCount: 2,
                     controller: pageController,
                     itemBuilder: (context, index) {
-                     return const SignInWidget();
-                      // if (isLoginPage) {
-                      //   return const SignInWidget();
-                      // } else {
-                      //   return const SignUpWidget();
-                      // }
+                      // return const SignInWidget();
+                      if (isLoginPage) {
+                        return const SignInWidget();
+                      } else {
+                        return const SignUpWidget();
+                      }
                     },
                     onPageChanged: (index) {
                       setState(() {

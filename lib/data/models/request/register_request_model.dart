@@ -13,12 +13,14 @@ class RegisterRequestModel {
     required this.name,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'email': email,
-      'password': password,
-      'name': name,
-    };
+Map<String, dynamic> toMap() {
+    final result = <String, dynamic>{};
+  
+    result.addAll({'email': email});
+    result.addAll({'password': password});
+    result.addAll({'name': name});
+  
+    return result;
   }
 
   factory RegisterRequestModel.fromMap(Map<String, dynamic> map) {

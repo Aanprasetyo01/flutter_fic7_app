@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_fic7_app/bloc/register/register_bloc.dart';
-import 'package:flutter_fic7_app/data/models/request/register_request_model.dart';
 
+import '../../../bloc/register/register_bloc.dart';
+import '../../../data/datasources/auth_local_datasource.dart';
+import '../../../data/models/request/register_request_model.dart';
 import '../../../utils/color_resources.dart';
 import '../../../utils/custom_themes.dart';
 import '../../../utils/dimensions.dart';
@@ -10,6 +11,7 @@ import '../../base_widgets/button/custom_button.dart';
 import '../../base_widgets/text_field/custom_password_textfield.dart';
 import '../../base_widgets/text_field/custom_textfield.dart';
 import '../../dashboard/dashboard_page.dart';
+// import '../../dashboard/dashboard_page.dart';
 
 class SignUpWidget extends StatefulWidget {
   const SignUpWidget({Key? key}) : super(key: key);
@@ -138,16 +140,19 @@ class SignUpWidgetState extends State<SignUpWidget> {
           child: BlocListener<RegisterBloc, RegisterState>(
             listener: (context, state) {
               state.maybeWhen(
-              orElse: (){},
-              error: (message) {
-                return ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('massage')),
-                );
-              },
-              loaded: (data){
-                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context){
-                  return DashboardPage();
-                }), (route) => false);
-              },
+                orElse: () {},
+                error: (message) {
+                  return ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(message)),
+                  );
+                },
+                loaded: (data) async {
+                  await AuthLocalDatasource().saveAuthData(data);
+                  Navigator.pushAndRemoveUntil(context,
+                      MaterialPageRoute(builder: (context) {
+                    return const DashboardPage();
+                  }), (route) => false);
+                },
               );
             },
             child: BlocBuilder<RegisterBloc, RegisterState>(
@@ -156,7 +161,7 @@ class SignUpWidgetState extends State<SignUpWidget> {
                   orElse: () {
                     return CustomButton(onTap: addUser, buttonText: 'Sign Up');
                   },
-                  loading: () => Center(
+                  loading: () => const Center(
                     child: CircularProgressIndicator(),
                   ),
                 );
